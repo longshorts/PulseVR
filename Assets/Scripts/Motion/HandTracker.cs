@@ -35,10 +35,12 @@ public class HandTracker : MonoBehaviour {
     public Quaternion InitialRotation
     {
         get { return m_initialRotation; }
+        set { m_initialRotation = value; }
     }
 
     public Vector3 InitialPosition
     {
         get { return m_initialPosition; }
+        set { m_initialPosition = value; }
     }
 }
