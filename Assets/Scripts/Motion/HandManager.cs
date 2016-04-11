@@ -5,8 +5,12 @@ public class HandManager : MonoBehaviour {
 
     HandTracker[] m_hands;
     GameObject rifle;
+    GameObject rifleGhost;
     GameObject handTarget_Trigger;
     GameObject handTarget_Forgrip;
+
+    public bool invert_180 = true;
+    public bool AKRIFLE = true;
 
     public GameObject rightHandObject;
     public GameObject leftHandObject;
@@ -25,7 +29,8 @@ public class HandManager : MonoBehaviour {
     void Start()
     {
         m_hands = GetComponentsInChildren<HandTracker>();
-        rifle = GameObject.Find("A3AR");
+        rifle = GameObject.Find("MotionGun");
+        rifleGhost = GameObject.Find("MotionGunGhost");
         handTarget_Forgrip = GameObject.Find("HandTarget_Forgrip");
         handTarget_Trigger = GameObject.Find("HandTarget_Trigger");
         triggerInitialPosition = GameObject.Find("HandTrackerRight").transform.localPosition;
@@ -37,10 +42,17 @@ public class HandManager : MonoBehaviour {
     void Update()
     {
         bool bResetHandPosition = false;
+        bool bGhostRifleEnabled = false;
 
         foreach (HandTracker hand in m_hands)
         {
-            if (IsControllerActive(hand.m_controller) && hand.m_controller.GetButtonDown(SixenseButtons.ONE))
+            //Render ghost gun accordingly
+            if (IsControllerActive(hand.m_controller) && hand.m_controller.GetButton(SixenseButtons.ONE))
+            {
+                bGhostRifleEnabled = true;
+            }
+
+            if (IsControllerActive(hand.m_controller) && hand.m_controller.GetButtonUp(SixenseButtons.ONE))
             {
                 bResetHandPosition = true;
                 triggerHand = hand;
@@ -48,14 +60,19 @@ public class HandManager : MonoBehaviour {
                 if (hand.m_controller.Hand.ToString().Equals("RIGHT"))
                 {
                     rifle.transform.parent = rightHandObject.transform;
-                    rifle.transform.localPosition = new Vector3(-0.1059966f, 0.4159997f, 1.770007f);
                 }
                 else
                 {
                     rifle.transform.parent = leftHandObject.transform;
-                    rifle.transform.localPosition = new Vector3(-0.1f, 0.4159997f, 1.73f);
                 }
+                if (AKRIFLE) rifle.transform.localPosition = new Vector3(0.01000834f, -0.1583923f, 1.819998f);
+                else rifle.transform.localPosition = new Vector3(-0.1059966f, 0.4159997f, 1.770007f);
+
                 rifle.transform.rotation = rifle.transform.parent.rotation;
+                rifle.transform.rotation *= Quaternion.Euler(0, 180f, 0);
+                /*Vector3 rot = rifle.transform.parent.rotation.eulerAngles;
+                rot = new Vector3(rot.x, rot.y + 180, rot.z);
+                rifle.transform.rotation = Quaternion.Euler(rot);*/
             }
 
             //if (IsControllerActive(hand.m_controller) && hand.m_controller.Hand.ToString().Equals("RIGHT") && hand.m_controller.GetButtonDown(SixenseButtons.TRIGGER))
@@ -87,7 +104,7 @@ public class HandManager : MonoBehaviour {
                 hand.m_baseOffset = hand.m_controller.Position;
                 hand.m_baseRotation = hand.m_controller.Rotation;
 
-                if (hand.Equals(triggerHand))
+                /*if (hand.Equals(triggerHand))
                 {
                     // Positon
                     hand.transform.position = handTarget_Trigger.transform.position;
@@ -117,7 +134,7 @@ public class HandManager : MonoBehaviour {
                     //BROKEN
                     //hand.transform.rotation = handTarget_Forgrip.transform.rotation;
                     //hand.InitialRotation = handTarget_Forgrip.transform.rotation;
-                }
+                }*/
 
                 /*// Positon
                 hand.m_baseOffset = hand.m_controller.Position;
@@ -136,6 +153,15 @@ public class HandManager : MonoBehaviour {
 
             //m_baseOffset = Vector3.zero;
             
+        }
+
+        if (bGhostRifleEnabled)
+        {
+            rifleGhost.SetActive(true);
+        }
+        else
+        {
+            rifleGhost.SetActive(false);
         }
     }
 
@@ -172,7 +198,7 @@ public class HandManager : MonoBehaviour {
         else
         {
             // use the inital position and orientation because the controller is not active
-            //hand.transform.position = hand.InitialPosition;
+            hand.transform.position = hand.InitialPosition;
             hand.transform.rotation = hand.InitialRotation;
         }
     }
