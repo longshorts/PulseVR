@@ -1,8 +1,0 @@
-Motion-1
-Shots Fired: 13
-Wave 1 Time: 8.066037
-Wave 1 Shots: 4
-Wave 2 Time: 12.00658
-Wave 2 Shots: 4
-Wave 3 Time: 9.72948
-Wave 3 Shots: 4
