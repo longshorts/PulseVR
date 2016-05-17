@@ -1,0 +1,5 @@
+TraditionalAK
+Shots Fired: 17
+Wave 1 Time: 7.199498
+Wave 2 Time: 16.6678
+Wave 3 Time: 15.35771

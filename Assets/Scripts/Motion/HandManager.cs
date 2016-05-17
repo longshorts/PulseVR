@@ -10,7 +10,7 @@ public class HandManager : MonoBehaviour {
     GameObject handTarget_Forgrip;
 
     public bool invert_180 = true;
-    public bool AKRIFLE = true;
+    public bool AKRIFLE = false;
 
     public GameObject rightHandObject;
     public GameObject leftHandObject;
@@ -21,7 +21,9 @@ public class HandManager : MonoBehaviour {
     Vector3 m_baseOffset;
     Vector3 triggerInitialPosition;
     Vector3 forgripInitialPosition;
-    float m_sensitivity = 0.02f; // Sixense units are in mm
+    Quaternion triggerInitialRotation;
+    Quaternion forgripInitialRotation;
+    public float m_sensitivity = 0.02f; // Sixense units are in mm
     bool m_bInitialized;
 
 
@@ -29,12 +31,22 @@ public class HandManager : MonoBehaviour {
     void Start()
     {
         m_hands = GetComponentsInChildren<HandTracker>();
-        rifle = GameObject.Find("MotionGun");
-        rifleGhost = GameObject.Find("MotionGunGhost");
+        if (AKRIFLE)
+        {
+            rifle = GameObject.Find("MotionGun");
+            rifleGhost = GameObject.Find("MotionGunGhost");
+        }
+        else
+        {
+            rifle = GameObject.Find("A3AR");
+            rifleGhost = GameObject.Find("A3ARGhost");
+        } 
         handTarget_Forgrip = GameObject.Find("HandTarget_Forgrip");
         handTarget_Trigger = GameObject.Find("HandTarget_Trigger");
         triggerInitialPosition = GameObject.Find("HandTrackerRight").transform.localPosition;
         forgripInitialPosition = GameObject.Find("HandTrackerLeft").transform.localPosition;
+        triggerInitialRotation = GameObject.Find("HandTrackerRight").transform.localRotation;
+        forgripInitialRotation = GameObject.Find("HandTrackerLeft").transform.localRotation;
     }
 
 
@@ -57,6 +69,8 @@ public class HandManager : MonoBehaviour {
                 bResetHandPosition = true;
                 triggerHand = hand;
 
+                //rifle.transform.position = rifleGhost.transform.position;
+
                 if (hand.m_controller.Hand.ToString().Equals("RIGHT"))
                 {
                     rifle.transform.parent = rightHandObject.transform;
@@ -66,10 +80,11 @@ public class HandManager : MonoBehaviour {
                     rifle.transform.parent = leftHandObject.transform;
                 }
                 if (AKRIFLE) rifle.transform.localPosition = new Vector3(0.01000834f, -0.1583923f, 1.819998f);
-                else rifle.transform.localPosition = new Vector3(-0.1059966f, 0.4159997f, 1.770007f);
+                //else rifle.transform.localPosition = new Vector3(-0.1059966f, 0.4159997f, 1.770007f);
+                //else rifle.transform.position = rifleGhost.transform.position;
 
                 rifle.transform.rotation = rifle.transform.parent.rotation;
-                rifle.transform.rotation *= Quaternion.Euler(0, 180f, 0);
+                if (AKRIFLE) { rifle.transform.rotation *= Quaternion.Euler(0, 180f, 0); }
                 /*Vector3 rot = rifle.transform.parent.rotation.eulerAngles;
                 rot = new Vector3(rot.x, rot.y + 180, rot.z);
                 rifle.transform.rotation = Quaternion.Euler(rot);*/
@@ -103,6 +118,17 @@ public class HandManager : MonoBehaviour {
 
                 hand.m_baseOffset = hand.m_controller.Position;
                 hand.m_baseRotation = hand.m_controller.Rotation;
+
+                if (hand.Equals(triggerHand))
+                {
+                    hand.transform.position = handTarget_Trigger.transform.position;
+                    triggerInitialPosition = hand.transform.localPosition;
+                }
+                else if (hand.Equals(forgripHand))
+                {
+                    hand.transform.position = handTarget_Forgrip.transform.position;
+                    forgripInitialPosition = hand.transform.localPosition;
+                }
 
                 /*if (hand.Equals(triggerHand))
                 {
@@ -175,8 +201,10 @@ public class HandManager : MonoBehaviour {
         {
             if(hand.Equals(triggerHand))
                 hand.transform.localPosition = (hand.m_controller.Position - hand.m_baseOffset) * m_sensitivity + triggerInitialPosition;
+                //hand.transform.localPosition = (hand.m_controller.Position - hand.m_baseOffset) * m_sensitivity + hand.transform.InverseTransformPoint(handTarget_Trigger.transform.position);
             else
                 hand.transform.localPosition = (hand.m_controller.Position - hand.m_baseOffset) * m_sensitivity + forgripInitialPosition;
+                //hand.transform.localPosition = (hand.m_controller.Position - hand.m_baseOffset) * m_sensitivity + hand.transform.InverseTransformPoint(handTarget_Forgrip.transform.position);
             //hand.transform.position = handTarget_Trigger.transform.position;
             //hand.transform.position = (hand.m_controller.Position - hand.m_baseOffset) * m_sensitivity + hand.InitialPosition;
             //hand.transform.localPosition = (hand.m_controller.Position - hand.m_baseOffset) * m_sensitivity + hand.InitialPosition;

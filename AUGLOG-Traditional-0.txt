@@ -1,0 +1,8 @@
+Traditional-0
+Shots Fired: 24
+Wave 1 Time: 6.166906
+Wave 1 Shots: 4
+Wave 2 Time: 25.04477
+Wave 2 Shots: 9
+Wave 3 Time: 17.2653
+Wave 3 Shots: 9
